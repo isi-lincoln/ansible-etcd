@@ -1,0 +1,17 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: rygoo
+  categories:
+    - databases
+  company: dcomptb.net
+  description: Installation and configuration of the etcd database
+  galaxy_tags:
+    - databases
+  license: license (Apache2.0)
+  min_ansible_version: 2.0
+  platforms:
+    - name: Fedora
+      versions:
+        - 28

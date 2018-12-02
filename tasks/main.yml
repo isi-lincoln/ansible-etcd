@@ -1,0 +1,10 @@
+---
+
+- name: generate etcd cluster keys
+  include_tasks: gencerts.yml
+  when: keygen
+
+- name: install etcd cluster node
+  include_tasks: install.yml
+  when: install
+

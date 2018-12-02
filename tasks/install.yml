@@ -1,0 +1,63 @@
+# etcd setup
+---
+
+- name: ensure role dependencies
+  dnf:
+    name: python2-libselinux
+    state: present
+
+- name: create etcd configuration dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/etcd
+    - /var/lib/etcd
+
+- name: get etcd binaries
+  get_url:
+    url: https://github.com/coreos/etcd/releases/download/v3.3.10/etcd-v3.3.10-linux-amd64.tar.gz
+    dest: /tmp/etcd-v3.3.10-linux-amd64.tar.gz
+
+- name: extract etcd binaries
+  unarchive:
+    src: /tmp/etcd-v3.3.10-linux-amd64.tar.gz
+    dest: /tmp/
+    remote_src: yes
+
+- name: install etcd binaries
+  shell: mv /tmp/etcd-v3.3.10-linux-amd64/etcd* /usr/bin/
+
+- name: set selinux permissions on etcd binaries
+  shell: chcon -t bin_t -r object_r -u system_u /usr/bin/etc*
+
+- name: copy certs
+  copy:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+  with_items:
+    - src: "{{ca.pem}}"
+      dest: /etc/etcd/ca.pem
+
+    - src: "{{db.pem}}"
+      dest: /etc/etcd/db.pem
+
+    - src: "{{db.key}}"
+      dest: /etc/etcd/db-key.pem
+  when: not keygen
+
+- name: add etcd service file
+  template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+
+- name: enable etcd
+  systemd:
+    name: etcd
+    enabled: yes
+    daemon_reload: yes
+
+- name: start etcd
+  systemd:
+    name: etcd
+    state: restarted

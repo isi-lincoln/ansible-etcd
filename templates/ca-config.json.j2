@@ -1,0 +1,14 @@
+{
+  "signing": {
+    "default": {
+      "expiry": "{{ca.expiry}}"
+    },
+    "profiles": {
+      "{{ca.profile}}": {
+        "usages": ["signing", "key encipherment", "server auth", "client auth"],
+        "expiry": "{{ca.expiry}}"
+      }
+    }
+  }
+}
+
