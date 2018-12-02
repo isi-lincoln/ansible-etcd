@@ -5,7 +5,7 @@ galaxy_info:
   author: rygoo
   categories:
     - databases
-  company: dcomptb.net
+  company: mergetb.net
   description: Installation and configuration of the etcd database
   galaxy_tags:
     - databases
