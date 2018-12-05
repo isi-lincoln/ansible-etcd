@@ -5,6 +5,7 @@
   dnf:
     name: python2-libselinux
     state: present
+  when: ansible_distribution == 'Fedora'
 
 - name: create etcd configuration dirs
   file:
@@ -30,6 +31,7 @@
 
 - name: set selinux permissions on etcd binaries
   shell: chcon -t bin_t -r object_r -u system_u /usr/bin/etc*
+  when: ansible_distribution == 'Fedora'
 
 - name: copy certs
   copy:
