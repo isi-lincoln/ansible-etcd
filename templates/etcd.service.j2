@@ -4,7 +4,7 @@ Documentation=https://github.com/coreos
 
 [Service]
 ExecStart=/usr/bin/etcd \
-  --name {{ xname }} \
+  --name {{ alias }} \
   --cert-file=/etc/etcd/db.pem \
   --key-file=/etc/etcd/db-key.pem \
   --peer-cert-file=/etc/etcd/db.pem \
@@ -12,11 +12,13 @@ ExecStart=/usr/bin/etcd \
   --trusted-ca-file=/etc/etcd/ca.pem \
   --peer-trusted-ca-file=/etc/etcd/ca.pem \
   --peer-client-cert-auth \
+  {% if client_cert_auth -%} 
   --client-cert-auth \
-  --initial-advertise-peer-urls https://{{ hostname }}:2380 \
+  {% endif -%}
+  --initial-advertise-peer-urls https://{{ address }}:2380 \
   --listen-peer-urls https://{{ ip }}:2380 \
   --listen-client-urls https://{{ ip }}:2379,http://127.0.0.1:2379 \
-  --advertise-client-urls https://{{ hostname }}:2379 \
+  --advertise-client-urls https://{{ address }}:2379 \
   --initial-cluster-token etcd-cluster-0 \
   --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \
   --initial-cluster-state new \
@@ -25,7 +27,5 @@ ExecStart=/usr/bin/etcd \
 Restart=on-failure
 RestartSec=5
   
-#db0=https://db0.dcomptb.net:2380,db1=https://db1.dcomptb.net:2380,db2=https://db2.dcomptb.net:2380 \
-
 [Install]
 WantedBy=multi-user.target

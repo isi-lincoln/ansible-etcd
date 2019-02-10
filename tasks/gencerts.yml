@@ -1,6 +1,15 @@
 # etcd certificate generation
 ---
 
+- set_fact:
+    basedir: /etc/etcd
+  when: not local
+
+- set_fact:
+    basedir: "."
+  when: local
+
+
 - name: install cfssl
   get_url:
     url: "{{item.url}}"
@@ -8,52 +17,53 @@
     mode: 755
   with_items:
     - url: https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
-      dest: /usr/local/bin/cfssl
+      dest: /tmp/cfssl
 
     - url: https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-      dest: /usr/local/bin/cfssljson
+      dest: /tmp/cfssljson
 
 - name: ensure etcd config directory exists
   file:
     path: /etc/etcd
     state: directory
+  when: not local
 
 - name: generate ca config
   template:
     src: ca-config.json.j2
-    dest: /etc/etcd/ca-config.json
+    dest: "{{basedir}}/ca-config.json"
 
 - name: generate ca csr
   template:
     src: ca-csr.json.j2
-    dest: /etc/etcd/ca-csr.json
+    dest: "{{basedir}}/ca-csr.json"
 
 - name: generate db config
   template:
     src: db-config.json.j2
-    dest: /etc/etcd/db-config.json
+    dest: "{{basedir}}/db-config.json"
 
 - name: generate db csr
   template:
     src: db-csr.json.j2
-    dest: /etc/etcd/db-csr.json
+    dest: "{{basedir}}/db-csr.json"
 
 - name: generate ca certs
   shell: > 
-    /usr/local/bin/cfssl gencert -initca ca-csr.json | 
-    /usr/local/bin/cfssljson -bare ca
+    /tmp/cfssl gencert -initca ca-csr.json | 
+    /tmp/cfssljson -bare ca
   args:
-    chdir: /etc/etcd
+    chdir: "{{basedir}}"
 
 - name: generate db certs
   shell: >
-    /usr/local/bin/cfssl gencert
+    /tmp/cfssl gencert
     -ca=ca.pem
     -ca-key=ca-key.pem
     -config=db-config.json
-    -hostname={{ hosts | map(attribute='xname') | join(',') }}
+    -hostname={{ auth_hosts | join(',') }}
     -profile={{db.profile}}
-    db-csr.json | cfssljson -bare db
+    db-csr.json | /tmp/cfssljson -bare db
   args:
-    chdir: /etc/etcd
+    chdir: "{{basedir}}"
     

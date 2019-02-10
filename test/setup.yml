@@ -1,0 +1,35 @@
+- hosts: [a,b,c]
+  become: true
+  vars:
+    a: 10.0.0.1
+    b: 10.0.0.2
+    c: 10.0.0.3
+  tasks:
+
+    - blockinfile:
+        path: /etc/network/interfaces
+        block: |
+          auto eth1
+          iface eth1 inet static
+            address {{vars[inventory_hostname_short]}}/24
+
+    - blockinfile:
+        path: /etc/hosts
+        block: |
+          10.0.0.1 dba
+          10.0.0.2 dbb
+          10.0.0.3 dbc
+
+    - shell: ifup eth1
+
+- hosts: s
+  become: true
+  tasks:
+
+    - nclu:
+        commands:
+          - add int swp1
+          - add int swp2
+          - add int swp3
+          - add bridge bridge ports swp1-3
+        atomic: true

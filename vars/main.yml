@@ -1,0 +1,7 @@
+local: no
+install: no
+keygen: no
+ca_pem: ./ca.pem
+db_pem: ./db.pem
+db_key: ./db-key.pem
+client_cert_auth: yes

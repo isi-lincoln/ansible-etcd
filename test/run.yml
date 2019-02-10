@@ -1,0 +1,34 @@
+- hosts: localhost
+  tasks:
+    - import_role:
+        name: etcd
+      vars:
+        keygen: yes
+        local: yes
+        auth_hosts:
+          - dba,10.0.0.1
+          - dbb,10.0.0.2
+          - dbc,10.0.0.3
+
+- hosts: [a,b,c]
+  become: true
+  vars:
+    a: 10.0.0.1
+    b: 10.0.0.2
+    c: 10.0.0.3
+  tasks:
+    - import_role:
+        name: etcd
+      vars:
+        install: yes
+        alias: "{{inventory_hostname_short}}"
+        address: "db{{inventory_hostname_short}}"
+        ip: "{{vars[inventory_hostname_short]}}"
+        hosts:
+          - alias: a
+            endpoint: a=https://dba:2380
+          - alias: b
+            endpoint: b=https://dbb:2380
+          - alias: c
+            endpoint: c=https://dbc:2380
+
