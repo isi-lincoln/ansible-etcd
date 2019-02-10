@@ -17,7 +17,7 @@ This role configures an etcd cluster.
 | db\_pem | no | | database cert to used for secured setups |
 | db\_key | no | | database key to used for secured setups |
 | keygen | no | no | generate keys for the deployment |
-| auth\_hosts| yes | | list of authorized hosts |
+| auth\_hosts| yes | | list of authorized hosts (used in TLS SANs) |
 | client\_cert\_auth | no | yes | authenticate clients with certs |
 
 ## Notes
@@ -34,54 +34,59 @@ journalctl -u etcd
 ### Single instance deployment
 
 ```yaml
-import_role:
-  name: etcd
+hosts: a
+become: true
 vars:
-  keygen: yes
-  install: yes
-  xname: db0
-  ip: 10.10.0.99
-  hostname: localhost
-  hosts:
-    - xname: db0
-      endpoint: db0=https://localhost:2380
+  a: 10.0.0.1
+tasks:
+  - import_role:
+      name: etcd
+    vars:
+      keygen: yes
+      install: yes
+      alias: a
+      address: "{{ansible_eth0.ipv4.address}}"
+      ip: "{{ansible_eth0.ipv4.address}}"
+      auth_hosts: [dba, 10.0.0.1]
+      hosts:
+        - alias: a
+          endpoint: a=https://{{ansible_eth0.ipv4.address}}:2380
 ```
 
-### Cluster Deployment
+### Cluster deployment
 
 ```yaml
-- hosts: localhost
-  tasks:
-    - import_role:
-        name: etcd
-      vars:
-        keygen: yes
-        local: yes
-        auth_hosts:
-          - dba,10.0.0.1
-          - dbb,10.0.0.2
-          - dbc,10.0.0.3
+hosts: localhost
+tasks:
+  - import_role:
+      name: etcd
+    vars:
+      keygen: yes
+      local: yes
+      auth_hosts:
+        - dba,10.0.0.1
+        - dbb,10.0.0.2
+        - dbc,10.0.0.3
 
-- hosts: [a,b,c]
-  become: true
-  vars:
-    a: 10.0.0.1
-    b: 10.0.0.2
-    c: 10.0.0.3
-  tasks:
-    - import_role:
-        name: etcd
-      vars:
-        install: yes
-        alias: "{{inventory_hostname_short}}"
-        address: "db{{inventory_hostname_short}}"
-        ip: "{{vars[inventory_hostname_short]}}"
-        hosts:
-          - alias: a
-            endpoint: a=https://dba:2380
-          - alias: b
-            endpoint: b=https://dbb:2380
-          - alias: c
-            endpoint: c=https://dbc:2380
-
+hosts: [a,b,c]
+become: true
+vars:
+  a: 10.0.0.1
+  b: 10.0.0.2
+  c: 10.0.0.3
+tasks:
+  - import_role:
+      name: etcd
+    vars:
+      install: yes
+      alias: "{{inventory_hostname_short}}"
+      address: "db{{inventory_hostname_short}}"
+      ip: "{{vars[inventory_hostname_short]}}"
+      hosts:
+        - alias: a
+          endpoint: a=https://dba:2380
+        - alias: b
+          endpoint: b=https://dbb:2380
+        - alias: c
+          endpoint: c=https://dbc:2380
 ```

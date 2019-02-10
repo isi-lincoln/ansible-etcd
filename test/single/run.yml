@@ -1,0 +1,18 @@
+- hosts: a
+  become: true
+  vars:
+    a: 10.0.0.1
+  tasks:
+    - import_role:
+        name: etcd
+      vars:
+        keygen: yes
+        install: yes
+        alias: a
+        address: "{{ansible_eth0.ipv4.address}}"
+        ip: "{{ansible_eth0.ipv4.address}}"
+        auth_hosts: [dba, 10.0.0.1]
+        hosts:
+          - alias: a
+            endpoint: a=https://{{ansible_eth0.ipv4.address}}:2380
+
