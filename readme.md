@@ -105,7 +105,7 @@ tasks:
 
 ### Proxy
 
-```
+```yaml
 hosts: x
 become: true
 vars:
