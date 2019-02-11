@@ -28,6 +28,8 @@ The following are used when `proxy=true`
 | ---- | ---------| ------- | ----------- |
 | proxy\_name | **yes** | | name of proxy |
 | proxy\_endpoints | **yes** | | etcd cluster endpoints |
+| proxy\_port | no | 2379 | listening port |
+| proxy\_address | no | 127.0.0.1 | listening address |
 | ca\_pem | no | | certificate authority to used for secured setups |
 | db\_pem | no | | database cert to used for secured setups |
 | db\_key | no | | database key to used for secured setups |
