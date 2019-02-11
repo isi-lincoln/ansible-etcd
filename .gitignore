@@ -1,3 +1,6 @@
 *.sw*
 *.retry
 .rvn
+*.pem
+*.csr
+*.json

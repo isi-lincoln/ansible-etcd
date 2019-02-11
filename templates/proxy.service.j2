@@ -1,0 +1,17 @@
+[Unit]
+Description={{proxy_name}}-proxy
+Documentation=https://etcd.io
+
+[Service]
+ExecStart=/usr/bin/etcd grpc-proxy start \
+  --endpoints={{proxy_endpoints}} \
+  --listen-addr=127.0.0.1:2379 \
+  --namespace=/{{proxy_name}}/ \
+  --cert={{db_pem}} \
+  --key={{db_key}} \
+  --cacert={{ca_pem}} \
+Restart=on-failure
+RestartSec=5
+  
+[Install]
+WantedBy=multi-user.target

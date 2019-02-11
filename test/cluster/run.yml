@@ -32,3 +32,28 @@
           - alias: c
             endpoint: c=https://dbc:2380
 
+
+- hosts: x
+  become: true
+  vars:
+  tasks:
+
+    - file:
+        path: /etc/etcd
+        state: directory
+
+    - copy:
+        src: "{{item}}"
+        dest: /etc/etcd/{{item}}
+      loop: [ca.pem, db.pem, db-key.pem]
+
+    - import_role:
+        name: etcd
+      vars:
+        proxy: yes
+        proxy_name: llama
+        proxy_endpoints: https://dba:2379,https://dbb:2379,https://dbc:2379
+        ca_pem: /etc/etcd/ca.pem
+        db_pem: /etc/etcd/db.pem
+        db_key: /etc/etcd/db-key.pem
+

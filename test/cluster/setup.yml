@@ -1,9 +1,10 @@
-- hosts: [a,b,c]
+- hosts: [a,b,c,x]
   become: true
   vars:
     a: 10.0.0.1
     b: 10.0.0.2
     c: 10.0.0.3
+    x: 10.0.0.10
   tasks:
 
     - blockinfile:
@@ -19,6 +20,7 @@
           10.0.0.1 dba
           10.0.0.2 dbb
           10.0.0.3 dbc
+          10.0.0.10 xc
 
     - shell: ifup eth1
 
@@ -31,5 +33,6 @@
           - add int swp1
           - add int swp2
           - add int swp3
-          - add bridge bridge ports swp1-3
+          - add int swp4
+          - add bridge bridge ports swp1-4
         atomic: true

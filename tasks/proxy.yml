@@ -1,0 +1,21 @@
+# etcd proxy setup
+#
+- include_tasks: fetch.yml
+
+- name: add proxy service file
+  template:
+    src: proxy.service.j2
+    dest: /etc/systemd/system/{{proxy_name}}-proxy.service
+
+- name: enable etcd
+  systemd:
+    name: "{{proxy_name}}-proxy"
+    enabled: yes
+    daemon_reload: yes
+
+- name: start etcd
+  systemd:
+    name: "{{proxy_name}}-proxy"
+    state: restarted
+
+

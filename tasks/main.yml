@@ -8,3 +8,6 @@
   include_tasks: install.yml
   when: install
 
+- name: install etcd proxy
+  include_tasks: proxy.yml
+  when: proxy

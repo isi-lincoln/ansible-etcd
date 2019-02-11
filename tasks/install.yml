@@ -9,23 +9,7 @@
     - /etc/etcd
     - /var/lib/etcd
 
-- name: get etcd binaries
-  get_url:
-    url: https://github.com/coreos/etcd/releases/download/v3.3.10/etcd-v3.3.10-linux-amd64.tar.gz
-    dest: /tmp/etcd-v3.3.10-linux-amd64.tar.gz
-
-- name: extract etcd binaries
-  unarchive:
-    src: /tmp/etcd-v3.3.10-linux-amd64.tar.gz
-    dest: /tmp/
-    remote_src: yes
-
-- name: install etcd binaries
-  shell: mv /tmp/etcd-v3.3.10-linux-amd64/etcd* /usr/bin/
-
-- name: set selinux permissions on etcd binaries
-  shell: chcon -t bin_t -r object_r -u system_u /usr/bin/etc*
-  when: ansible_distribution == 'Fedora'
+- include_tasks: fetch.yml
 
 - name: copy certs
   copy:
