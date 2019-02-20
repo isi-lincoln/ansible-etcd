@@ -17,8 +17,8 @@ ExecStart=/usr/bin/etcd \
   {% endif -%}
   --initial-advertise-peer-urls https://{{ address }}:2380 \
   --listen-peer-urls https://{{ ip }}:2380 \
-  --listen-client-urls https://{{ ip }}:2379,http://127.0.0.1:2379 \
-  --advertise-client-urls https://{{ address }}:2379 \
+  --listen-client-urls https://{{ ip }}:{{ etcd_port }},http://127.0.0.1:{{ etcd_port }} \
+  --advertise-client-urls https://{{ address }}:{{ etcd_port }} \
   --initial-cluster-token etcd-cluster-0 \
   --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \
   --initial-cluster-state new \

@@ -9,3 +9,4 @@ client_cert_auth: yes
 version: v3.3.10
 proxy_port: 2379
 proxy_address: 127.0.0.1
+etcd_port: 2379
