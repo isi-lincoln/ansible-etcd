@@ -10,6 +10,9 @@ ExecStart=/usr/bin/etcd grpc-proxy start \
   --cert={{db_pem}} \
   --key={{db_key}} \
   --cacert={{ca_pem}} \
+  {% if not proxy_verify_peer -%} 
+  --insecure-skip-tls-verify \
+  {% endif -%}
 Restart=on-failure
 RestartSec=5
   
