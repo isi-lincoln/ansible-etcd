@@ -17,7 +17,7 @@ This role configures an etcd cluster.
 | db\_pem | no | | database cert to used for secured setups |
 | db\_key | no | | database key to used for secured setups |
 | keygen | no | no | generate keys for the deployment |
-| auth\_hosts| yes | | list of authorized hosts (used in TLS SANs) |
+| auth\_hosts| **yes** | | list of authorized hosts (used in TLS SANs) |
 | client\_cert\_auth | no | yes | authenticate clients with certs |
 
 ### Proxy variables
