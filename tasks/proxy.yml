@@ -18,4 +18,3 @@
     name: "{{proxy_name}}-proxy"
     state: restarted
 
-

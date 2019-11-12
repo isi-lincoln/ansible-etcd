@@ -15,6 +15,10 @@
     url: "{{item.url}}"
     dest: "{{item.dest}}"
     mode: 755
+  register: result
+  until: result.failed == False
+  retries: 3
+  delay: 3
   with_items:
     - url: https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
       dest: /tmp/cfssl

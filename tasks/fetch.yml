@@ -3,6 +3,10 @@
   get_url:
     url: https://github.com/coreos/etcd/releases/download/{{version}}/etcd-{{version}}-linux-amd64.tar.gz
     dest: /tmp/etcd-{{version}}-linux-amd64.tar.gz
+  register: result
+  until: result.failed == False
+  retries: 3
+  delay: 3
 
 - name: extract etcd binaries
   unarchive:
