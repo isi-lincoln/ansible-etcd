@@ -17,7 +17,7 @@ ExecStart=/usr/bin/etcd \
   {% endif -%}
   --initial-advertise-peer-urls https://{{ address }}:2380 \
   --listen-peer-urls https://{{ ip }}:2380 \
-  --listen-client-urls https://{{ ip }}:{{ etcd_port }},http://127.0.0.1:{{ etcd_port }} \
+  --listen-client-urls https://{{ ip }}:{{ etcd_port }} \
   --advertise-client-urls https://{{ address }}:{{ etcd_port }} \
   --initial-cluster-token etcd-cluster-0 \
   --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \
@@ -28,4 +28,5 @@ Restart=on-failure
 RestartSec=5
   
 [Install]
+Alias=merge-etcd-server
 WantedBy=multi-user.target

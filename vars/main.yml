@@ -1,6 +1,7 @@
 local: no
 install: no
 proxy: no
+server: no
 keygen: no
 ca_pem: ./ca.pem
 db_pem: ./db.pem
@@ -11,3 +12,4 @@ proxy_port: 2379
 proxy_address: 127.0.0.1
 proxy_verify_peer: yes
 etcd_port: 2379
+ip: 0.0.0.0
