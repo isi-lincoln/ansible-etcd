@@ -1,6 +1,11 @@
 # etcd setup
 ---
 
+- name: add mergetb {{release}} repo
+  shell: curl https://pkg.mergetb.net/addrepo | RELEASE={{release}} bash - 
+  args:
+    creates: /etc/apt/sources.list.d/mergetb-{{release}}.list
+
 - name: install etcd
   apt:
     name: etcd
