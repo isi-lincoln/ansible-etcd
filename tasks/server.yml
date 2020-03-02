@@ -1,0 +1,16 @@
+---
+
+- name: ensure etcd is setup
+  include_tasks: install.yml
+
+- name: add etcd server service
+  template:
+    src: etcd.service
+    dest: /lib/systemd/system/merge-etcd-server.service
+
+- name: enable and run merge-etcd-server service
+  systemd:
+    name: merge-etcd-server
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

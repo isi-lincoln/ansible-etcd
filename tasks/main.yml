@@ -4,9 +4,9 @@
   include_tasks: gencerts.yml
   when: keygen
 
-- name: install etcd cluster node
-  include_tasks: install.yml
-  when: install
+- name: install etcd server
+  include_tasks: server.yml
+  when: server
 
 - name: install etcd proxy
   include_tasks: proxy.yml

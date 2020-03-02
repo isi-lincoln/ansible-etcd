@@ -1,15 +1,17 @@
 # etcd setup
 ---
 
-- name: create etcd configuration dirs
-  file:
-    path: "{{ item }}"
-    state: directory
-  with_items:
-    - /etc/etcd
-    - /var/lib/etcd
+- name: install etcd
+  apt:
+    name: etcd
+    update_cache: yes
 
-- include_tasks: fetch.yml
+- name: ensure etcd config dir
+  file:
+    path: /etc/etcd
+    state: directory
+    owner: etcd
+    group: etcd
 
 - name: copy certs
   copy:
@@ -26,18 +28,8 @@
       dest: /etc/etcd/db-key.pem
   when: not keygen
 
-- name: add etcd service file
-  template:
-    src: etcd.service.j2
-    dest: /etc/systemd/system/etcd.service
-
-- name: enable etcd
+- name: disable default etcd instance
   systemd:
     name: etcd
-    enabled: yes
-    daemon_reload: yes
-
-- name: start etcd
-  systemd:
-    name: etcd
-    state: restarted
+    enabled: no
+    state: stopped

@@ -12,7 +12,7 @@ This role configures an etcd cluster.
 | alias | **yes** | | etcd cluster name for a host |
 | address | **yes** | | address to advertise to peers |
 | endpoint | **yes** | | etcd connection string for host |
-| ip | **yes** | | listening address |
+| ip | no | 0.0.0.0 | listening address |
 | ca\_pem | no | | certificate authority to used for secured setups |
 | db\_pem | no | | database cert to used for secured setups |
 | db\_key | no | | database key to used for secured setups |
