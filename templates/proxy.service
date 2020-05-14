@@ -9,13 +9,15 @@ ExecStart=/usr/bin/etcd grpc-proxy start \
   --namespace=/{{proxy_name}}/ \
   --cert=/etc/etcd/db.pem \
   --key=/etc/etcd/db-key.pem \
-  {% if not proxy_verify_peer -%} 
+  {% if not proxy_verify_peer -%}
   --insecure-skip-tls-verify \
   {% endif -%}
-  --cacert=/etc/etcd/ca.pem
+  --cacert=/etc/etcd/ca.pem \
+  --max-send-bytes={{ max_bytes }} \
+  --max-recv-bytes={{ max_bytes }}
 Restart=on-failure
 RestartSec=5
-  
+
 [Install]
 Alias={{proxy_name}}-proxy
 WantedBy=multi-user.target
