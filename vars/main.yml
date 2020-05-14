@@ -14,3 +14,5 @@ proxy_verify_peer: yes
 etcd_port: 2379
 ip: 0.0.0.0
 release: bullseye
+max_bytes: 15728640
+max_ops: 4096
