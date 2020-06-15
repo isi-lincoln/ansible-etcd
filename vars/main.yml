@@ -3,6 +3,7 @@ install: no
 proxy: no
 server: no
 keygen: no
+encrypted: yes
 ca_pem: ./ca.pem
 db_pem: ./db.pem
 db_key: ./db-key.pem

@@ -1,5 +1,9 @@
 ---
 
+- name: determine protocol (http/https)
+  set_fact:
+    protocol: {{ 'https' if encrypted else 'http' }}
+
 - name: ensure etcd is setup
   include_tasks: install.yml
 

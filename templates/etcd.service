@@ -5,6 +5,7 @@ Documentation=https://github.com/coreos
 [Service]
 ExecStart=/usr/bin/etcd \
   --name {{ alias }} \
+  {% if protocol == 'https' -%}
   --cert-file=/etc/etcd/db.pem \
   --key-file=/etc/etcd/db-key.pem \
   --peer-cert-file=/etc/etcd/db.pem \
@@ -12,13 +13,14 @@ ExecStart=/usr/bin/etcd \
   --trusted-ca-file=/etc/etcd/ca.pem \
   --peer-trusted-ca-file=/etc/etcd/ca.pem \
   --peer-client-cert-auth \
+  {% endif -%}
   {% if client_cert_auth -%}
   --client-cert-auth \
   {% endif -%}
-  --initial-advertise-peer-urls https://{{ address }}:2380 \
-  --listen-peer-urls https://{{ ip }}:2380 \
-  --listen-client-urls https://{{ ip }}:{{ etcd_port }} \
-  --advertise-client-urls https://{{ address }}:{{ etcd_port }} \
+  --initial-advertise-peer-urls {{ protocol }}://{{ address }}:2380 \
+  --listen-peer-urls {{ protocol }}://{{ ip }}:2380 \
+  --listen-client-urls {{ protocol }}://{{ ip }}:{{ etcd_port }} \
+  --advertise-client-urls {{ protocol }}://{{ address }}:{{ etcd_port }} \
   --initial-cluster-token etcd-cluster-0 \
   --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \
   --initial-cluster-state new \
