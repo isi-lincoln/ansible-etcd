@@ -31,7 +31,7 @@
 
     - src: "{{db_key}}"
       dest: /etc/etcd/db-key.pem
-  when: not keygen
+  when: not keygen and not encrypted
 
 - name: disable default etcd instance
   systemd:
