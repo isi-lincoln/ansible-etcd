@@ -4,6 +4,10 @@
   include_tasks: gencerts.yml
   when: keygen
 
+- name: install docker
+  include_tasks: prereqs.yml
+  when: proxy or server
+
 - name: install etcd server
   include_tasks: server.yml
   when: server

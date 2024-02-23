@@ -7,7 +7,8 @@ ca_pem: ./ca.pem
 db_pem: ./db.pem
 db_key: ./db-key.pem
 client_cert_auth: yes
-version: v3.3.10
+server_name: etcd-server
+version: v3.5.12
 proxy_port: 2379
 proxy_address: 127.0.0.1
 proxy_verify_peer: yes

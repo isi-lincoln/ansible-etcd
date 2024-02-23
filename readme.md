@@ -19,6 +19,8 @@ This role configures an etcd cluster.
 | keygen | no | no | generate keys for the deployment |
 | auth\_hosts| **yes** | | list of authorized hosts (used in TLS SANs) |
 | client\_cert\_auth | no | yes | authenticate clients with certs |
+| version | no | v3.5.12 | etcd database server version to install |
+| server\_name | no | etcd-server | name of the etcd server for systemd and docker |
 
 ### Proxy variables
 

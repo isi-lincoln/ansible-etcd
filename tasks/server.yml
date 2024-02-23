@@ -6,11 +6,11 @@
 - name: add etcd server service
   template:
     src: etcd.service
-    dest: /lib/systemd/system/merge-etcd-server.service
+    dest: /lib/systemd/system/etcd-server.service
 
-- name: enable and run merge-etcd-server service
+- name: enable and run etcd-server service
   systemd:
-    name: merge-etcd-server
+    name: etcd-server
     enabled: yes
     state: restarted
     daemon_reload: yes

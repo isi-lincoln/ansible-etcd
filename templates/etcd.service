@@ -1,9 +1,16 @@
 [Unit]
 Description=etcd
 Documentation=https://github.com/coreos
+Requires=docker.service
+Wants=network.target
+After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/etcd \
+ExecStartPre=- /usr/bin/docker stop {{ server_name }}
+ExecStartPre=- /usr/bin/docker rm {{ server_name }}
+Environment="ETCD_DATA_DIR=/etc/etcd/etcd-data"
+Environment="ETCD_SSL_DIR=/etc/ssl/certs"
+Environment="ETCD_OPTS= \
   --name {{ alias }} \
   --cert-file=/etc/etcd/db.pem \
   --key-file=/etc/etcd/db-key.pem \
@@ -24,10 +31,18 @@ ExecStart=/usr/bin/etcd \
   --initial-cluster-state new \
   --data-dir=/var/lib/etcd \
   --max-txn-ops={{ max_ops }} \
-  --max-request-bytes={{ max_bytes }}
+  --max-request-bytes={{ max_bytes }}"
+ExecStart=/usr/bin/docker run bitnami/etcd:{{ version }} \
+  -p 2380:2380 -p 2379:2379 --volume=/etc/etcd/:/etc/etcd \
+  --name {{ server_name }} --network host
+ExecStop=/usr/bin/docker stop {{ server_name }} -t 10
+ExecRestart=/usr/bin/docker restart {{ server_name }}
+KillMode=none
+RemainAfterExit=1
 Restart=on-failure
 RestartSec=5
+Type=simple
 
 [Install]
-Alias=merge-etcd-server
+Alias={{ server_name }}
 WantedBy=multi-user.target

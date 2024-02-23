@@ -1,9 +1,15 @@
 [Unit]
 Description={{proxy_name}}-proxy
 Documentation=https://etcd.io
+Requires=docker.service
+Wants=network.target
+After=network-online.target
 
 [Service]
-ExecStart=/usr/bin/etcd grpc-proxy start \
+ExecStartPre=- /usr/bin/docker stop {{proxy_name}}-proxy
+ExecStartPre=- /usr/bin/docker rm {{proxy_name}}-proxy
+Environment="ETCD_SSL_DIR=/etc/ssl/certs"
+Environment="ETCD_OPTS= \
   --endpoints={{proxy_endpoints}} \
   --listen-addr={{proxy_address}}:{{proxy_port}} \
   --namespace=/{{proxy_name}}/ \
@@ -14,9 +20,19 @@ ExecStart=/usr/bin/etcd grpc-proxy start \
   {% endif -%}
   --cacert=/etc/etcd/ca.pem \
   --max-send-bytes={{ max_bytes }} \
-  --max-recv-bytes={{ max_bytes }}
+  --max-recv-bytes={{ max_bytes }}"
 Restart=on-failure
 RestartSec=5
+ExecStart=/usr/bin/docker run bitnami/etcd:{{ version }} \
+  -p 2380:2380 -p 2379:2379 --volume=/etc/etcd/:/etc/etcd \
+  --name etcd-server --network host "/usr/bin/etcd grpc-proxy start"
+ExecStop=/usr/bin/docker stop {{proxy_name}}-proxy -t 10
+ExecRestart=/usr/bin/docker restart {{proxy_name}}-proxy
+KillMode=none
+RemainAfterExit=1
+Restart=on-failure
+RestartSec=5
+Type=simple
 
 [Install]
 Alias={{proxy_name}}-proxy

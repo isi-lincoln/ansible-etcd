@@ -1,15 +1,12 @@
 # etcd setup
+# requires: ansible-galaxy collection install community.docker
 ---
 
-- name: add mergetb {{release}} repo
-  shell: curl https://pkg.mergetb.net/addrepo | RELEASE={{release}} bash - 
-  args:
-    creates: /etc/apt/sources.list.d/mergetb-{{release}}.list
-
-- name: install etcd
-  apt:
-    name: etcd
-    update_cache: yes
+- name: docker pull etcd image
+  command: docker pull bitnami/etcd:{{ version }}
+  #community.docker.docker_image_pull:
+  #  name: "bitnami/etcd:{{ version }}"
+  #  platform: amd64
 
 - name: ensure etcd config dir
   file:
