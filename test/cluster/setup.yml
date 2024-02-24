@@ -6,13 +6,14 @@
     c: 10.0.0.3
     x: 10.0.0.10
   tasks:
+    - name: clear ip addr
+      command: ip addr flush dev eth1
 
-    - blockinfile:
-        path: /etc/network/interfaces
-        block: |
-          auto eth1
-          iface eth1 inet static
-            address {{vars[inventory_hostname_short]}}/24
+    - name: set ip addr
+      command: ip addr add {{vars[inventory_hostname_short]}}/24 dev eth1
+
+    - name: set link up
+      command: ip link set eth1 up
 
     - blockinfile:
         path: /etc/hosts
@@ -22,13 +23,11 @@
           10.0.0.3 dbc
           10.0.0.10 xc
 
-    - shell: ifup eth1
-
 - hosts: s
   become: true
   tasks:
-
-    - nclu:
+    - name: set up bridge
+      nclu:
         commands:
           - add int swp1
           - add int swp2

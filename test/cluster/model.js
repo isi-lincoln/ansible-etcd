@@ -1,6 +1,6 @@
 topo = {
   name: 'etcd',
-  nodes: [buster('a'), buster('b'), buster('c'), buster('x')],
+  nodes: [ubuntu('a'), ubuntu('b'), ubuntu('c'), ubuntu('x')],
   switches: [cumulus('s')],
   links: [
     Link('a', 1, 's', 1),
@@ -10,10 +10,10 @@ topo = {
   ]
 }
 
-function buster(name) {
+function ubuntu(name) {
   return {
     name: name,
-    image: 'debian-buster',
+    image: 'ubuntu-2204',
     memory: { capacity: GB(2) },
     proc: { cores: 2 }
   }
@@ -22,7 +22,7 @@ function buster(name) {
 function cumulus(name) {
   return {
     name: name,
-    image: 'cumulusvx-3.5-mvrf',
+    image: 'cumulusvx-4.1',
     memory: { capacity: GB(2) },
     proc: { cores: 2 }
   }

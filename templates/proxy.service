@@ -6,29 +6,26 @@ Wants=network.target
 After=network-online.target
 
 [Service]
-ExecStartPre=- /usr/bin/docker stop {{proxy_name}}-proxy
-ExecStartPre=- /usr/bin/docker rm {{proxy_name}}-proxy
-Environment="ETCD_SSL_DIR=/etc/ssl/certs"
-Environment="ETCD_OPTS= \
+ExecStartPre=sh -c '/usr/bin/docker kill {{proxy_name}} || /usr/bin/true'
+ExecStartPre=sh -c '/usr/bin/docker rm {{proxy_name}} || /usr/bin/true'
+ExecStart=/usr/bin/docker run --rm \
+  --volume=/etc/etcd/:/etc/etcd \
+  --name {{proxy_name}}-proxy --network host bitnami/etcd:{{ version }} \
+  /bin/sh -c "unset $(env | cut -d= -f1 | grep -i etcd) && \
+  etcd grpc-proxy start \
   --endpoints={{proxy_endpoints}} \
   --listen-addr={{proxy_address}}:{{proxy_port}} \
   --namespace=/{{proxy_name}}/ \
   --cert=/etc/etcd/db.pem \
   --key=/etc/etcd/db-key.pem \
+  --data-dir=/etc/etcd \
   {% if not proxy_verify_peer -%}
   --insecure-skip-tls-verify \
   {% endif -%}
   --cacert=/etc/etcd/ca.pem \
   --max-send-bytes={{ max_bytes }} \
   --max-recv-bytes={{ max_bytes }}"
-Restart=on-failure
-RestartSec=5
-ExecStart=/usr/bin/docker run bitnami/etcd:{{ version }} \
-  -p 2380:2380 -p 2379:2379 --volume=/etc/etcd/:/etc/etcd \
-  --name etcd-server --network host "/usr/bin/etcd grpc-proxy start"
-ExecStop=/usr/bin/docker stop {{proxy_name}}-proxy -t 10
-ExecRestart=/usr/bin/docker restart {{proxy_name}}-proxy
-KillMode=none
+ExecStop=sh -c '/usr/bin/docker stop {{proxy_name}} || /usr/bin/true'
 RemainAfterExit=1
 Restart=on-failure
 RestartSec=5

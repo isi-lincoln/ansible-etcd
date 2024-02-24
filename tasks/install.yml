@@ -1,24 +1,26 @@
 # etcd setup
-# requires: ansible-galaxy collection install community.docker
 ---
 
 - name: docker pull etcd image
   command: docker pull bitnami/etcd:{{ version }}
-  #community.docker.docker_image_pull:
-  #  name: "bitnami/etcd:{{ version }}"
-  #  platform: amd64
 
-- name: ensure etcd config dir
+# TODO: permissions for container, run as different user
+- name: ensure etcd config dir does not exist
+  file:
+    path: /etc/etcd
+    state: absent
+
+- name: create etcd config directory
   file:
     path: /etc/etcd
     state: directory
-    owner: etcd
-    group: etcd
+    mode: '0777'
 
 - name: copy certs
   copy:
     src: "{{item.src}}"
     dest: "{{item.dest}}"
+    mode: '0755'
   with_items:
     - src: "{{ca_pem}}"
       dest: /etc/etcd/ca.pem
@@ -29,9 +31,3 @@
     - src: "{{db_key}}"
       dest: /etc/etcd/db-key.pem
   when: not keygen
-
-- name: disable default etcd instance
-  systemd:
-    name: etcd
-    enabled: no
-    state: stopped

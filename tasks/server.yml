@@ -10,7 +10,7 @@
 
 - name: enable and run etcd-server service
   systemd:
-    name: etcd-server
+    name: "{{ server_name }}"
     enabled: yes
     state: restarted
     daemon_reload: yes

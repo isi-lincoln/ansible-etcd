@@ -12,15 +12,17 @@ This role configures an etcd cluster.
 | alias | **yes** | | etcd cluster name for a host |
 | address | **yes** | | address to advertise to peers |
 | endpoint | **yes** | | etcd connection string for host |
+| auth\_hosts| **yes** | | list of authorized hosts (used in TLS SANs) |
 | ip | no | 0.0.0.0 | listening address |
 | ca\_pem | no | | certificate authority to used for secured setups |
 | db\_pem | no | | database cert to used for secured setups |
 | db\_key | no | | database key to used for secured setups |
 | keygen | no | no | generate keys for the deployment |
-| auth\_hosts| **yes** | | list of authorized hosts (used in TLS SANs) |
 | client\_cert\_auth | no | yes | authenticate clients with certs |
-| version | no | v3.5.12 | etcd database server version to install |
+| version | no | 3.5.12 | etcd database server version to install |
+| server | no | no | install etcd server on this machine |
 | server\_name | no | etcd-server | name of the etcd server for systemd and docker |
+| proxy | no | no | install etcd proxy server on this machine |
 
 ### Proxy variables
 
@@ -39,11 +41,20 @@ The following are used when `proxy=true`
 
 ## Notes
 
-Etcd instances are run via systemd.
+Etcd instances are managed via systemd using either `server_name` or `proxy_name` as the service name.
 
 ```shell
-service etcd status
-journalctl -u etcd
+service etcd-server status
+journalctl -u etcd-server
+```
+
+## Tests
+
+Tests contained in the `test/` directory use [raven](https://gitlab.com/mergetb/tech/raven).
+
+```
+./run.sh
+./setup-etcd.sh
 ```
 
 ## Examples
@@ -60,7 +71,7 @@ tasks:
       name: etcd
     vars:
       keygen: yes
-      install: yes
+      server: yes
       alias: a
       address: "{{ansible_eth0.ipv4.address}}"
       ip: "{{ansible_eth0.ipv4.address}}"
@@ -95,7 +106,7 @@ tasks:
   - import_role:
       name: etcd
     vars:
-      install: yes
+      server: yes
       alias: "{{inventory_hostname_short}}"
       address: "db{{inventory_hostname_short}}"
       ip: "{{vars[inventory_hostname_short]}}"
@@ -124,5 +135,4 @@ tasks:
       ca_pem: /etc/etcd/ca.pem
       db_pem: /etc/etcd/db.pem
       db_key: /etc/etcd/db-key.pem
-
 ```

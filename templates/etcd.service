@@ -5,13 +5,28 @@ Requires=docker.service
 Wants=network.target
 After=network-online.target
 
+#  unset ETCD_CLIENT_CERT_AUTH && \
+#  unset ETCD_ADVERTISE_CLIENT_URLS && \
+#  unset ETCD_TRUSTED_CA_FILE && \
+#  unset ETCD_INITIAL_CLUSTER_TOKEN && \
+#  unset ETCD_INITIAL_CLUSTER_STATE && \
+#  unset ETCD_INITIAL_ADVERTISE_PEER_URLS && \
+#  unset ETCD_DATA_DIR && \
+#  unset ETCD_NAME && \
+#  unset ETCD_LISTEN_CLIENT_URLS && \
+#  unset ETCD_CERT_FILE && \
+#  unset ETCD_LISTEN_PEER_URLS && \
+#  unset ETCD_KEY_FILE && \
+#  unset ETCD_INITIAL_CLUSTER && \
 [Service]
-ExecStartPre=- /usr/bin/docker stop {{ server_name }}
-ExecStartPre=- /usr/bin/docker rm {{ server_name }}
-Environment="ETCD_DATA_DIR=/etc/etcd/etcd-data"
-Environment="ETCD_SSL_DIR=/etc/ssl/certs"
-Environment="ETCD_OPTS= \
-  --name {{ alias }} \
+ExecStartPre=sh -c '/usr/bin/docker kill {{ server_name }} || /usr/bin/true'
+ExecStartPre=sh -c '/usr/bin/docker rm {{ server_name }} || /usr/bin/true'
+ExecStart=/usr/bin/docker run --rm \
+  --volume=/etc/etcd/:/etc/etcd \
+  --name {{ server_name }} --network host \
+  bitnami/etcd:{{ version }} /bin/sh -c "unset $(env | cut -d= -f1 | grep -i etcd) && \
+  etcd \
+  --name={{ alias }} \
   --cert-file=/etc/etcd/db.pem \
   --key-file=/etc/etcd/db-key.pem \
   --peer-cert-file=/etc/etcd/db.pem \
@@ -29,15 +44,10 @@ Environment="ETCD_OPTS= \
   --initial-cluster-token etcd-cluster-0 \
   --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \
   --initial-cluster-state new \
-  --data-dir=/var/lib/etcd \
+  --data-dir=/etc/etcd \
   --max-txn-ops={{ max_ops }} \
   --max-request-bytes={{ max_bytes }}"
-ExecStart=/usr/bin/docker run bitnami/etcd:{{ version }} \
-  -p 2380:2380 -p 2379:2379 --volume=/etc/etcd/:/etc/etcd \
-  --name {{ server_name }} --network host
-ExecStop=/usr/bin/docker stop {{ server_name }} -t 10
-ExecRestart=/usr/bin/docker restart {{ server_name }}
-KillMode=none
+ExecStartPre=sh -c '/usr/bin/docker stop {{ server_name }} || /usr/bin/true'
 RemainAfterExit=1
 Restart=on-failure
 RestartSec=5

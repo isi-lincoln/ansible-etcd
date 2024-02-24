@@ -20,7 +20,7 @@
     - import_role:
         name: etcd
       vars:
-        install: yes
+        server: yes
         alias: "{{inventory_hostname_short}}"
         address: "db{{inventory_hostname_short}}"
         ip: "{{vars[inventory_hostname_short]}}"
@@ -53,7 +53,6 @@
         proxy: yes
         proxy_name: llama
         proxy_endpoints: https://dba:2379,https://dbb:2379,https://dbc:2379
-        ca_pem: /etc/etcd/ca.pem
-        db_pem: /etc/etcd/db.pem
-        db_key: /etc/etcd/db-key.pem
-
+        ca_pem: ./ca.pem
+        db_pem: ./db.pem
+        db_key: ./db-key.pem

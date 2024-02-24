@@ -1,20 +1,20 @@
 ---
 
 ca:
-  profile: dcomp
+  profile: primary
   expiry: 4700h
   C: US
   L: Marina del Rey
   ST: California
-  O: dcomp
-  OU: dcomp administrators
-  CN: dcomptb
+  O: Information Sciences Institute
+  OU: Networking
+  CN: avoid
 db:
-  profile: dcomp
+  profile: db
   expiry: 4700h
   C: US
   L: Marina del Rey
   ST: California
-  O: dcomp:db
-  OU: dcomp administrators
-  CN: db
+  O: isi:db
+  OU: networking
+  CN: avoid:db
