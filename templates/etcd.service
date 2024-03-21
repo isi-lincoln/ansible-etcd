@@ -26,7 +26,7 @@ ExecStart=/usr/bin/docker run --rm \
   --name {{ server_name }} --network host \
   bitnami/etcd:{{ version }} /bin/sh -c "unset $(env | cut -d= -f1 | grep -i etcd) && \
   etcd \
-  --name={{ alias }} \
+  --name={{ server_name }} \
   --cert-file=/etc/etcd/db.pem \
   --key-file=/etc/etcd/db-key.pem \
   --peer-cert-file=/etc/etcd/db.pem \
@@ -42,7 +42,7 @@ ExecStart=/usr/bin/docker run --rm \
   --listen-client-urls https://{{ ip }}:{{ etcd_port }} \
   --advertise-client-urls https://{{ address }}:{{ etcd_port }} \
   --initial-cluster-token etcd-cluster-0 \
-  --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \
+  --initial-cluster {{ server_name }}=https://{{ address }}:2380 \
   --initial-cluster-state new \
   --data-dir=/etc/etcd \
   --max-txn-ops={{ max_ops }} \

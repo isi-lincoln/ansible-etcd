@@ -1,8 +1,13 @@
 # etcd setup
 ---
 
+# because it takes 1-2 tries to get the correct dns response from the correct dns entity
 - name: docker pull etcd image
   command: docker pull bitnami/etcd:{{ version }}
+  retries: 6
+  delay: 5
+  register: result
+  until: result.rc == 0
 
 # TODO: permissions for container, run as different user
 - name: ensure etcd config dir does not exist
