@@ -70,4 +70,3 @@
     db-csr.json | /tmp/cfssljson -bare db
   args:
     chdir: "{{basedir}}"
-    
