@@ -11,10 +11,7 @@
 
 
 - name: install cfssl
-  get_url:
-    url: "{{item.url}}"
-    dest: "{{item.dest}}"
-    mode: 755
+  shell: wget -O {{ item.dest }} {{ item.url }} && chmod 755 {{ item.dest }}
   register: result
   until: result.failed == False
   retries: 3
