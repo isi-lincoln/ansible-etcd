@@ -42,7 +42,11 @@ ExecStart=/usr/bin/docker run --rm \
   --listen-client-urls https://{{ ip }}:{{ etcd_port }} \
   --advertise-client-urls https://{{ address }}:{{ etcd_port }} \
   --initial-cluster-token etcd-cluster-0 \
-  --initial-cluster {{ server_name }}=https://{{ address }}:2380 \
+  {% if hosts|length > 1 %}
+  --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \
+  {% else %}
+  --initial-cluster {{ server_name }}=https://{{ ip }}:2380 \
+  {% endif %}
   --initial-cluster-state new \
   --data-dir=/etc/etcd \
   --max-txn-ops={{ max_ops }} \
