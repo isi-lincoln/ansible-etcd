@@ -21,26 +21,32 @@ After=network-online.target
 [Service]
 ExecStartPre=sh -c '/usr/bin/docker kill {{ server_name }} || /usr/bin/true'
 ExecStartPre=sh -c '/usr/bin/docker rm {{ server_name }} || /usr/bin/true'
+# TODO: --name needs to be based on endpoint attribute
 ExecStart=/usr/bin/docker run --rm \
   --volume=/etc/etcd/:/etc/etcd \
-  --name {{ server_name }} --network host \
+  --network host \
+  --name {{ server_name }} \
   bitnami/etcd:{{ version }} /bin/sh -c "unset $(env | cut -d= -f1 | grep -i etcd) && \
   etcd \
-  --name={{ server_name }} \
-  --cert-file=/etc/etcd/db.pem \
-  --key-file=/etc/etcd/db-key.pem \
-  --peer-cert-file=/etc/etcd/db.pem \
-  --peer-key-file=/etc/etcd/db-key.pem \
-  --trusted-ca-file=/etc/etcd/ca.pem \
-  --peer-trusted-ca-file=/etc/etcd/ca.pem \
-  --peer-client-cert-auth \
+  {% if hosts|length > 1 %}
+  --name {{ inventory_hostname }} \
+  {% else %}
+  --name {{ server_name }} \
+  {% endif %}
   {% if client_cert_auth -%}
   --client-cert-auth \
   {% endif -%}
-  --initial-advertise-peer-urls https://{{ address }}:2380 \
+  --trusted-ca-file=/etc/etcd/ca.pem \
+  --cert-file=/etc/etcd/{{ inventory_hostname }}-server.pem \
+  --key-file=/etc/etcd/{{ inventory_hostname }}-server-key.pem \
+  --peer-client-cert-auth \
+  --peer-trusted-ca-file=/etc/etcd/ca.pem \
+  --peer-cert-file=/etc/etcd/{{ inventory_hostname }}-peer.pem \
+  --peer-key-file=/etc/etcd/{{ inventory_hostname }}-peer-key.pem \
+  --initial-advertise-peer-urls https://{{ ip }}:2380 \
   --listen-peer-urls https://{{ ip }}:2380 \
   --listen-client-urls https://{{ ip }}:{{ etcd_port }} \
-  --advertise-client-urls https://{{ address }}:{{ etcd_port }} \
+  --advertise-client-urls https://{{ ip }}:{{ etcd_port }} \
   --initial-cluster-token etcd-cluster-0 \
   {% if hosts|length > 1 %}
   --initial-cluster {{ hosts | map(attribute='endpoint') | join(',') }} \

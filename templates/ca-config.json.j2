@@ -1,14 +1,34 @@
 {
   "signing": {
     "default": {
-      "expiry": "{{ca.expiry}}"
+      "expiry": "{{cacert.expiry}}"
     },
     "profiles": {
-      "{{ca.profile}}": {
-        "usages": ["signing", "key encipherment", "server auth", "client auth"],
-        "expiry": "{{ca.expiry}}"
+      "server": {
+        "expiry": "{{cacert.expiry}}",
+        "usages": [
+          "signing",
+          "key encipherment",
+          "server auth"
+        ]
+      },
+      "client": {
+        "expiry": "{{cacert.expiry}}",
+        "usages": [
+          "signing",
+          "key encipherment",
+          "client auth"
+        ]
+      },
+      "peer": {
+        "expiry": "{{cacert.expiry}}",
+        "usages": [
+          "signing",
+          "key encipherment",
+          "server auth",
+          "client auth"
+        ]
       }
     }
   }
 }
-

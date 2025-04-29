@@ -4,8 +4,6 @@ proxy: no
 server: no
 keygen: no
 ca_pem: ./ca.pem
-db_pem: ./db.pem
-db_key: ./db-key.pem
 client_cert_auth: yes
 server_name: etcd-server
 version: 3.5.12
@@ -17,3 +15,4 @@ ip: 0.0.0.0
 release: bullseye
 max_bytes: 15728640
 max_ops: 4096
+delete_etcd_data_dir: no

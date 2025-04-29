@@ -26,6 +26,13 @@
     - url: https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
       dest: /tmp/cfssljson
 
+- name: delete old data dir
+  file:
+    path: /etc/etcd
+    state: absent
+  when: not local and delete_etcd_data_dir
+
+# TODO: fix permissions
 - name: ensure etcd config directory exists
   file:
     path: /etc/etcd
@@ -35,39 +42,139 @@
 
 - name: generate ca config
   template:
-    src: ca-config.json.j2
-    dest: "{{basedir}}/ca-config.json"
+    src: "{{ item }}.json.j2"
+    dest: "{{basedir}}/{{ item }}.json"
+  loop:
+    - ca-config
+    - ca-csr
+    - client-csr
+    - peer-csr
+    - server-csr
 
-- name: generate ca csr
-  template:
-    src: ca-csr.json.j2
-    dest: "{{basedir}}/ca-csr.json"
+- name: debug endpoints variable
+  debug:
+    msg: "hosts detected: {{ play_hosts }}. Host count: {{ play_hosts | length }}"
 
-- name: generate db config
-  template:
-    src: db-config.json.j2
-    dest: "{{basedir}}/db-config.json"
+- block:
+  - name: generate ca certs
+    shell: >
+      /tmp/cfssl gencert -initca ca-csr.json |
+      /tmp/cfssljson -bare ca
+    args:
+      chdir: "{{basedir}}"
 
-- name: generate db csr
-  template:
-    src: db-csr.json.j2
-    dest: "{{basedir}}/db-csr.json"
+  - name: generate certificates
+    shell: >
+      /tmp/cfssl gencert
+      -ca=ca.pem
+      -ca-key=ca-key.pem
+      -config=ca-config.json
+      -profile={{ item }}
+      {{ item }}-csr.json | /tmp/cfssljson -bare {{ inventory_hostname }}-{{ item }}
+    args:
+      chdir: "{{basedir}}"
+    loop:
+      - server
 
-- name: generate ca certs
-  shell: > 
-    /tmp/cfssl gencert -initca ca-csr.json | 
-    /tmp/cfssljson -bare ca
-  args:
-    chdir: "{{basedir}}"
+  - name: generate certificates
+    shell: >
+      /tmp/cfssl gencert
+      -ca=ca.pem
+      -ca-key=ca-key.pem
+      -config=ca-config.json
+      -profile={{ item }}
+      -hostname={{ auth_hosts[inventory_hostname] }}
+      {{ item }}-csr.json | /tmp/cfssljson -bare {{ inventory_hostname }}-{{ item }}
+    args:
+      chdir: "{{basedir}}"
+    loop:
+      - peer
 
-- name: generate db certs
-  shell: >
-    /tmp/cfssl gencert
-    -ca=ca.pem
-    -ca-key=ca-key.pem
-    -config=db-config.json
-    -hostname={{ auth_hosts | join(',') }}
-    -profile={{db.profile}}
-    db-csr.json | /tmp/cfssljson -bare db
-  args:
-    chdir: "{{basedir}}"
+
+  when: play_hosts | length == 1
+
+
+- block:
+  - name: Select primary host for certificate generation
+    set_fact:
+      primary_host: "{{ play_hosts[0] }}"
+    run_once: true
+
+  - name: Show primary host for certificate generation
+    debug:
+      msg: "Primary host for certificate generation: {{ primary_host }}"
+    run_once: true
+
+  - name: generate ca cert
+    shell: >
+      /tmp/cfssl gencert -initca ca-csr.json |
+      /tmp/cfssljson -bare ca
+    args:
+      chdir: "{{basedir}}"
+    when: inventory_hostname == primary_host
+
+  - name: Ensure certificate directory exists on secondary hosts
+    file:
+      path: "{{ basedir }}"
+      state: directory
+      mode: "0777"
+    when: inventory_hostname != primary_host
+
+  - name: Fetch certificates from primary host
+    fetch:
+      src: "{{ basedir }}/{{ item }}"
+      dest: "/tmp/etcd_certs/{{ item }}"
+      flat: yes
+    with_items:
+      - ca.pem
+      - ca-key.pem
+      - ca.csr
+    when: inventory_hostname == primary_host
+
+  - name: Ensure certificate directory exists on secondary hosts
+    file:
+      path: "{{ basedir }}"
+      state: directory
+      mode: "0777"
+    when: inventory_hostname != primary_host
+
+  - name: Copy certificates to secondary hosts
+    copy:
+      src: "/tmp/etcd_certs/{{ item }}"
+      dest: "{{ basedir }}/{{ item }}"
+      mode: "0644"
+    with_items:
+      - ca.pem
+      - ca-key.pem
+      - ca.csr
+
+  - name: generate certificates
+    shell: >
+      /tmp/cfssl gencert
+      -ca=ca.pem
+      -ca-key=ca-key.pem
+      -config=ca-config.json
+      -profile={{ item }}
+      {{ item }}-csr.json | /tmp/cfssljson -bare {{ inventory_hostname }}-{{ item }}
+    args:
+      chdir: "{{basedir}}"
+    loop:
+      - server
+      - peer
+      - client
+
+  - name: get all the files
+    find:
+      paths: /etc/etcd
+      recurse: yes
+      patterns: "*.pem"
+    register: etcd_files
+
+  - name: Set permissions on all etcd files
+    file:
+      path: "{{ item.path }}"
+      mode: '0755'
+    with_items: "{{ etcd_files.files }}"
+    when: etcd_files.files | length > 0
+
+  when: play_hosts | length > 1

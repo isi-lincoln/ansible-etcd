@@ -1,20 +1,36 @@
 ---
-
-ca:
-  profile: primary
-  expiry: 4700h
+cacert:
+  expiry: 8760h
   C: US
   L: Marina del Rey
   ST: California
   O: Information Sciences Institute
   OU: Networking
-  CN: avoid
-db:
-  profile: db
-  expiry: 4700h
+  CN: Avoid
+
+clientcert:
+  expiry: 8760h
   C: US
   L: Marina del Rey
   ST: California
-  O: isi:db
-  OU: networking
-  CN: avoid:db
+  O: Information Sciences Institute
+  OU: Networking
+
+peercert:
+  expiry: 8760h
+  C: US
+  L: Marina del Rey
+  ST: California
+  O: Information Sciences Institute
+  OU: Networking
+
+servercert:
+  expiry: 8760h
+  C: US
+  L: Marina del Rey
+  ST: California
+  O: Information Sciences Institute
+  OU: Networking
+
+cert_key_algo: ecdsa
+cert_key_size: 256

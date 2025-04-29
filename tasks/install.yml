@@ -39,12 +39,12 @@
       dest: /etc/etcd/db-key.pem
   when: not keygen
 
-- name: set cert permissions
-  file:
-    path: "{{item}}"
-    mode: '0755'
-  with_items:
-    - /etc/etcd/ca.pem
-    - /etc/etcd/db.pem
-    - /etc/etcd/db-key.pem
-  when: keygen
+#- name: set cert permissions
+#  file:
+#    path: "{{item}}"
+#    mode: '0755'
+#  with_items:
+#    - /etc/etcd/ca.pem
+#    - /etc/etcd/db.pem
+#    - /etc/etcd/db-key.pem
+#  when: keygen

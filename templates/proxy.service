@@ -16,8 +16,8 @@ ExecStart=/usr/bin/docker run --rm \
   --endpoints={{proxy_endpoints}} \
   --listen-addr={{proxy_address}}:{{proxy_port}} \
   --namespace=/{{proxy_name}}/ \
-  --cert=/etc/etcd/db.pem \
-  --key=/etc/etcd/db-key.pem \
+  --cert=/etc/etcd/{{ inventory_hostname }}-peer.pem \
+  --key=/etc/etcd/{{ inventory_hostname }}-peer-key.pem \
   --data-dir=/etc/etcd \
   {% if not proxy_verify_peer -%}
   --insecure-skip-tls-verify \

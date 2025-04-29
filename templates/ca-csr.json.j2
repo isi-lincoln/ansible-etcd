@@ -1,17 +1,16 @@
 {
-  "CN": "{{ca.CN}}",
+  "CN": "{{cacert.CN}}",
   "key": {
-    "algo": "rsa",
-    "size": 2048
+     "algo": "{{ cert_key_algo }}",
+     "size": {{ cert_key_size }}
   },
   "names": [
     {
-      "C": "{{ca.C}}",
-      "L": "{{ca.L}}",
-      "ST": "{{ca.ST}}",
-      "O": "{{ca.CN}}",
-      "OU": "{{ca.OU}}"
+      "C": "{{cacert.C}}",
+      "L": "{{cacert.L}}",
+      "ST": "{{cacert.ST}}",
+      "O": "{{cacert.CN}}",
+      "OU": "{{cacert.OU}}"
     }
   ]
 }
-

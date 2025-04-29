@@ -1,0 +1,21 @@
+{
+    "CN": "{{ inventory_hostname }}",
+    "hosts": [
+      {% for item in auth_hosts[inventory_hostname] %}
+      "{{ item }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ],
+    "key": {
+        "algo": "{{ cert_key_algo }}",
+        "size": {{ cert_key_size }}
+    },
+    "names": [
+        {
+          "C": "{{clientcert.C}}",
+          "L": "{{clientcert.L}}",
+          "ST": "{{clientcert.ST}}",
+          "O": "{{clientcert.O}}",
+          "OU": "{{clientcert.OU}}"
+        }
+    ]
+}

@@ -6,7 +6,7 @@
 - name: add etcd server service
   template:
     src: etcd.service
-    dest: /lib/systemd/system/etcd-server.service
+    dest: /etc/systemd/system/etcd-server.service
 
 - name: enable and run etcd-server service
   systemd:
